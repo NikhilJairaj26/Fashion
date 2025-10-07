@@ -1,52 +1,83 @@
-#GlamDiva — Personal Styler and Wardrobe
-GlamDiva is a Flask-based web app that helps organize a personal wardrobe with photos and delivers color guidance based on undertone, occasion, and seasonal analysis. Users can add items with images, save style preferences, and see tailored suggestions and palettes.
+# GlamDiva — Personal Styler and Wardrobe
 
-Key features
-Secure accounts with login/logout; each user sees only their own data.
+A Flask web app to organize a personal wardrobe with photos and deliver color guidance based on undertone, occasion, and seasonal analysis.
 
-Wardrobe management: add, search, filter, sort, delete; upload and view item images.
+## Project Structure
 
-Personal Styler: save skin tone, undertone, eye/hair color, and occasion; get undertone + occasion-based suggestions and palette chips.
+The project is organized into the following directories:
 
-Colour Analysis: auto-detect seasonal type (Winter/Summer/Spring/Autumn) using a simple contrast heuristic; show curated neutrals, accents, and colors to avoid; surface wardrobe items that match the season.
+- `backend/` → Flask app files:
+  - `app.py` (routes for auth, wardrobe CRUD, Personal Styler, Colour Analysis)
+  - `models.py` (SQLAlchemy: `User`, `UserProfile`, `WardrobeItem`)
+  - `requirements.txt` (dependencies)
+- `templates/` → Jinja2 pages:
+  - `index.html`, `login.html`, `signup.html`, `profile.html`, `edit-profile.html`
+  - `wardrobe.html` (CRUD + image uploads)
+  - `personal-styler.html` (preferences, suggestions, palette chips)
+  - `colour-analysis.html` (seasonal palette and matches)
+- `static/uploads/` → stored item images (created at runtime)
+- `scripts/` → optional helpers (e.g., seeding, checks; add as needed)
 
-Tech stack
-Backend: Python, Flask, Flask-Login, SQLAlchemy
+## Features
 
-Templating/UI: Jinja2, HTML, CSS, light JavaScript
+### Backend
 
-Storage: SQLite by default (switchable to PostgreSQL/MySQL), local image uploads in static/uploads
+- **Auth & Sessions**: Secure login/logout with Flask-Login; per-user data isolation.
+- **Wardrobe CRUD**: Add, search, filter, sort, delete items; image uploads with secure filenames.
+- **Personal Styler**: Save skin tone, undertone, eye/hair color, occasion; show undertone + occasion suggestions and color chips.
+- **Colour Analysis**: Infer season (Winter/Summer/Spring/Autumn) from undertone + contrast; curated neutrals/accents/avoid; highlight matching wardrobe items.
 
-How it works (brief)
-Personal Styler: preferences are stored per user; suggestions are picked from undertone maps and adjusted by occasion; small color palettes render as chips; wardrobe picks are filtered by keywords.
+### Frontend
 
-Colour Analysis: season is inferred from undertone and a light skin/dark hair contrast rule; each season maps to curated neutrals/accents/avoid sets; matching wardrobe items are highlighted.
+- **Responsive UI**: Clean pages and bottom navigation for Home, Wardrobe, Colors, Profile.
+- **Palette Chips**: Render small hex palettes as colored chips for quick cues.
+- **Thumbnails**: Show uploaded images inline with wardrobe items.
 
-Wardrobe: items are stored per user; search by text, filter by category, sort by newest/name; images are saved with secure, unique filenames.
+## Getting Started
 
-Project structure (high level)
-app.py: routes, auth, wardrobe CRUD, personal styler logic, colour analysis
+### Prerequisites
 
-models.py: User, UserProfile, WardrobeItem
+- **Python**: 3.11+ recommended
+- **Pip or Conda**: for dependencies
 
-templates/: HTML pages (wardrobe, personal-styler, colour-analysis, auth, profile)
+### Installation
 
-static/uploads/: stored item images
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   ```
+2. **Create and activate a virtual environment (recommended):**
+   ```bash
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1   # Windows PowerShell
+   # or
+   source .venv/bin/activate      # macOS/Linux
+   ```
+3. **Install dependencies:**
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
+4. **Create uploads folder (if missing):**
+   ```bash
+   mkdir -p static/uploads        # macOS/Linux
+   # Windows PowerShell:
+   # New-Item -ItemType Directory -Force -Path .\static\uploads | Out-Null
+   ```
 
-Getting started (local)
-Create/activate a Python environment.
+### Running the Project
 
-Install dependencies: python -m pip install -r requirements.txt
+1. **Run the backend server:**
+   ```bash
+   python app.py
+   ```
+2. **Open the app:**
+   - http://127.0.0.1:5000
 
-Ensure static/uploads exists.
+## Scripts
 
-Run: python app.py and open http://127.0.0.1:5000
+Add optional scripts as your workflow grows:
+- `seed_database.py` → seed sample users/items
+- `test_palette.py` → validate palette mappings
+- `export_items.py` → export wardrobe items to CSV/JSON
 
-Roadmap
-Smarter color matching from images (auto-tag colors).
-
-Pagination and bulk actions in Wardrobe.
-
-Cloud storage for images; production WSGI and HTTPS.
-
-API endpoints and a mobile-friendly wrapper.
+Made by NJ
