@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GlamDiva - Homepage</title>
+
+  <!-- Google Fonts -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #f5f0e1; /* Beige background */
+      color: #5a3e36;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    header {
+      background-color: #a57c63; /* Dark brown */
+      padding: 20px 40px;
+      text-align: center;
+      color: #fffaf0;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    main {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .options {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      background-color: #fffaf0;
+      width: 250px;
+      height: 200px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+    }
+
+    .card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      color: #5a3e36;
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: #7a5a4d;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      width: 80%;
+      height: 4px;
+      background-color: #a57c63;
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover::after {
+      opacity: 1;
+    }
+
+    /* Bottom Navigation */
+    nav.bottom-nav {
+      background-color: #fffaf0;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      position: sticky;
+      bottom: 0;
+    }
+
+    nav.bottom-nav a {
+      text-decoration: none;
+      color: #5a3e36;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-weight: 500;
+    }
+
+    nav.bottom-nav a:hover {
+      color: #a57c63;
+    }
+
+    nav.bottom-nav a i {
+      font-size: 1.2rem;
+      margin-bottom: 3px;
+    }
+
+    @media (max-width: 600px) {
+      .options { gap: 20px; }
+      .card { width: 80%; height: 180px; }
+    }
+  </style>
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    GlamDiva
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="options">
+      <!-- link targets switched to Flask routes -->
+      <div class="card" onclick="window.location.href='/colour-analysis'">
+        <h2>Colour Analysis</h2>
+        <p>Discover your perfect colours and enhance your style.</p>
+      </div>
+
+      <div class="card" onclick="window.location.href='/personal-styler'">
+        <h2>Personal Styler</h2>
+        <p>Get personalized outfit suggestions for any occasion.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/"><i class="fas fa-home"></i>Home</a>
+    <a href="/wardrobe"><i class="fas fa-tshirt"></i>Wardrobe</a>
+    <a href="/profile"><i class="fas fa-user"></i>Profile</a>
+
+    <!-- auth-aware links using Jinja -->
+    {% if current_user.is_authenticated %}
+      <a href="/logout"><i class="fas fa-right-from-bracket"></i>Logout</a>
+    {% else %}
+      <a href="/login"><i class="fas fa-right-to-bracket"></i>Login</a>
+      <a href="/signup"><i class="fas fa-user-plus"></i>Sign Up</a>
+    {% endif %}
+  </nav>
+
+</body>
+</html>

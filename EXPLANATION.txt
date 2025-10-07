@@ -1,0 +1,65 @@
+Title: GlamDiva — Simple Explanation (EXPLANATION.txt)
+
+What this app does
+- Lets a logged-in person save wardrobe items (name, category, color, notes).
+- Saves basic style preferences (skin tone, undertone, eye and hair color).
+- Gives color suggestions and small color palettes based on undertone.
+- Shows a colour analysis page that picks a “season” (Winter/Summer/Spring/Autumn) and suggests neutrals, accents, and colors to avoid.
+
+How the app is organized
+- app.py: The main file. It starts the app and contains the web routes (URLs and what they do).
+- models.py: The database tables (User, UserProfile, WardrobeItem).
+- config.py: Settings like database path and secret key.
+- templates/: The HTML pages shown to the user (wardrobe, personal styler, colour analysis, etc.).
+
+The data saved
+- User: login info and name.
+- UserProfile: skin tone, undertone, eye color, hair color (optional).
+- WardrobeItem: item name, category (Top/Bottom/etc.), color (free text), notes, created time.
+
+Main pages and what they do
+- /signup and /login: create account and sign in.
+- /dev-login: logs in a demo user to speed up testing.
+- /profile and /profile/edit: view and change the account name or password.
+- /wardrobe:
+  - GET: shows items with search (q), category filter, and sort (newest or name).
+  - POST: adds a new item when the form is submitted.
+  - Each row has Edit and Delete buttons (delete is a POST).
+- /personal-styler:
+  - GET: shows a form with skin tone, undertone, eye/hair color.
+  - POST: saves those values to the user profile.
+  - After saving, it shows simple tips (like “jewel tones” for cool) and a small palette of colors.
+  - It also shows 6 wardrobe items (latest by default). If undertone is set, it tries to find items whose color text matches helpful keywords.
+- /colour-analysis:
+  - Reads undertone and skin tone and guesses a “season” using a simple rule:
+    - Cool → Winter (if high contrast) or Summer (otherwise).
+    - Warm → Spring (if high contrast) or Autumn (otherwise).
+    - Neutral → Winter (if high contrast) or Autumn (otherwise).
+  - Shows three lists: neutrals, accent colors, and colors to avoid (as color chips).
+  - If the profile is empty, there’s a small client-side form to still generate helpful chips.
+  - It can also look through wardrobe colors and show items that seem to match the season.
+  
+Why some small scripts are used
+- Color chips set their background using a tiny script. This avoids mixing Jinja code directly into CSS inline styles (which can create warnings or errors in validators).
+
+How requests flow
+- A user clicks a link or submits a form.
+- The route in app.py handles it: reads inputs, checks/updates the database, and decides which template to render.
+- The template shows data and any flash message (success or error).
+
+Common rules we follow
+- Only the logged-in user can see their data. Routes are protected with login-required where needed.
+- When a form is submitted:
+  - If something is missing or invalid, we show a clear message at the top.
+  - If it works, we show a success message.
+- HTML has clear labels and no duplicate id attributes to avoid confusion.
+
+How to run (quick)
+- Install from requirements.txt (either globally or inside a virtual environment).
+- Set up config.py (SECRET_KEY and database path).
+- Run: python app.py
+- Visit: http://127.0.0.1:5000/
+- Use /dev-login during development to skip signup each time.
+
+
+End.

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GlamDiva - Wardrobe</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background-color: #f5f0e1; color: #5a3e36; min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: #a57c63; padding: 20px 40px; text-align: center; color: #fffaf0; font-family: 'Playfair Display', serif; font-size: 2rem; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    main { flex-grow: 1; padding: 30px 20px; max-width: 1000px; margin: 0 auto; width: 100%; }
+    h2.section-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 16px; color: #5a3e36; text-align: center; }
+    .card { background:#fffaf0; border-radius:16px; box-shadow:0 6px 15px rgba(0,0,0,0.1); padding:18px; margin-bottom:20px; }
+    .grid { display:grid; grid-template-columns: 1fr; gap: 18px; }
+    label { display:block; margin-bottom:6px; color:#5a3e36; font-weight:500; }
+    input, select, textarea { width:100%; padding:12px 14px; margin-bottom:14px; border:1px solid #d9cbbd; border-radius:8px; outline:none; background:#fff; font-size:0.95rem; }
+    input:focus, select:focus, textarea:focus { border-color:#a57c63; }
+    .row { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; }
+    .btn { padding:12px 16px; background:#a57c63; color:#fffaf0; border:none; border-radius:8px; cursor:pointer; font-size:1rem; transition:.3s; text-decoration:none; display:inline-block; }
+    .btn:hover { background:#8f674f; }
+    .btn-danger { background:#b75353; }
+    .btn-danger:hover { background:#944242; }
+    table { width:100%; border-collapse:separate; border-spacing:0 10px; }
+    th, td { text-align:left; padding:10px 12px; background:#fff; }
+    th { background:#e9dfd1; color:#5a3e36; }
+    tr.item-row td { background:#fffaf0; }
+    .actions { display:flex; gap:8px; }
+    .flash-message { margin-bottom: 12px; padding: 10px 12px; border-radius: 6px; font-size: 0.9rem; }
+    .flash-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .flash-error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .flash-info    { background: #cce7ff; color: #004085; border: 1px solid #b3d7ff; }
+    nav.bottom-nav { background-color: #fffaf0; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); border-top-left-radius: 20px; border-top-right-radius: 20px; position: sticky; bottom: 0; }
+    nav.bottom-nav a { text-decoration: none; color: #5a3e36; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; font-weight: 500; }
+    nav.bottom-nav a:hover { color: #a57c63; }
+    nav.bottom-nav a i { font-size: 1.2rem; margin-bottom: 3px; }
+    @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+<header>GlamDiva - Wardrobe</header>
+
+<main>
+  <div role="status" aria-live="polite">
+    {% if get_flashed_messages() %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+    {% endif %}
+  </div>
+
+  <!-- Filter / Search -->
+  <div class="card">
+    <h2 class="section-title" style="margin-bottom:10px;">Your Wardrobe</h2>
+    <form method="GET" action="/wardrobe">
+      <div class="row" style="grid-template-columns:1fr 1fr 1fr;">
+        <div>
+          <label for="q">Search</label>
+          <input id="q" name="q" type="text" value="{{ q or '' }}" placeholder="Search by name or notes">
+        </div>
+        <div>
+          <label for="filter_category">Category</label>
+          <select id="filter_category" name="category">
+            <option value="">All</option>
+            {% for c in ['Top','Bottom','Dress','Outerwear','Footwear','Accessory'] %}
+              <option value="{{ c }}" {% if category==c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="sort_by">Sort</label>
+          <select id="sort_by" name="sort">
+            <option value="newest" {% if sort=='newest' %}selected{% endif %}>Newest</option>
+            <option value="name" {% if sort=='name' %}selected{% endif %}>Name</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" type="submit">Apply</button>
+    </form>
+  </div>
+
+  <div class="grid">
+    <!-- Add Item -->
+    <div class="card">
+      <h2 class="section-title" style="margin-bottom:10px;">Add Item</h2>
+      <form method="POST" action="/wardrobe" enctype="multipart/form-data">
+        <label for="name">Item Name</label>
+        <input id="name" name="name" type="text" placeholder="e.g., Blue Denim Jacket" required>
+
+        <div class="row" style="grid-template-columns:1fr 1fr 1fr;">
+          <div>
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+              <option value="">Select</option>
+              <option>Top</option>
+              <option>Bottom</option>
+              <option>Dress</option>
+              <option>Outerwear</option>
+              <option>Footwear</option>
+              <option>Accessory</option>
+            </select>
+          </div>
+          <div>
+            <label for="color">Color</label>
+            <input id="color" name="color" type="text" placeholder="e.g., Navy Blue">
+          </div>
+          <div>
+            <label for="image">Image (optional)</label>
+            <input id="image" name="image" type="file" accept=".png,.jpg,.jpeg,.gif,.webp">
+          </div>
+        </div>
+
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="e.g., Match with white tee or beige chinos"></textarea>
+
+        <button type="submit" class="btn">Add to Wardrobe</button>
+      </form>
+    </div>
+
+    <!-- Items List -->
+    <div class="card">
+      <h2 class="section-title" style="margin-bottom:10px;">Items</h2>
+
+      {% if items and items|length > 0 %}
+        <table aria-describedby="wardrobe-table-caption">
+          <caption id="wardrobe-table-caption" style="text-align:left; margin-bottom:8px; color:#7a5a4d;">Your saved wardrobe items</caption>
+          <thead>
+            <tr>
+              <th style="width:12%;">Image</th>
+              <th style="width:24%;">Name</th>
+              <th style="width:16%;">Category</th>
+              <th style="width:16%;">Color</th>
+              <th>Notes</th>
+              <th style="width:160px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for it in items %}
+              <tr class="item-row">
+                <td>
+                  {% if it.image_url %}
+                    <img src="{{ it.image_url }}" alt="{{ it.name }}" style="width:64px; height:64px; object-fit:cover; border-radius:8px;"/>
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td>{{ it.name }}</td>
+                <td>{{ it.category }}</td>
+                <td>{{ it.color or '-' }}</td>
+                <td>{{ it.notes or '-' }}</td>
+                <td class="actions">
+                  <a class="btn" href="/wardrobe/edit/{{ it.id }}">Edit</a>
+                  <form method="POST" action="/wardrobe/delete/{{ it.id }}" style="display:inline;">
+                    <button type="submit" class="btn btn-danger" aria-label="Delete {{ it.name }}" onclick="return confirm('Delete this item?')">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="color:#7a5a4d;">No items yet. Add your first piece above.</p>
+      {% endif %}
+    </div>
+  </div>
+</main>
+
+<nav class="bottom-nav">
+  <a href="/"><i class="fas fa-home"></i>Home</a>
+  <a href="/wardrobe"><i class="fas fa-tshirt"></i>Wardrobe</a>
+  <a href="/colour-analysis"><i class="fas fa-palette"></i>Colors</a>
+  <a href="/profile"><i class="fas fa-user"></i>Profile</a>
+</nav>
+
+</body>
+</html>

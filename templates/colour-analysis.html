@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GlamDiva - Colour Analysis</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap');
+
+    :root{
+      --bg:#f5f0e1; --fg:#5a3e36; --brand:#a57c63; --card:#fffaf0; --muted:#7a5a4d;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:'Poppins',sans-serif; background:var(--bg); color:var(--fg);
+      min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    }
+    header{
+      width:100%; background:var(--brand); color:#fffaf0; text-align:center; padding:20px 0;
+      font-family:'Playfair Display',serif; font-size:2rem; border-bottom-left-radius:20px; border-bottom-right-radius:20px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    }
+    main{
+      width:100%; max-width:700px; padding:40px 20px; display:flex; flex-direction:column; gap:18px; align-items:center;
+    }
+
+    .card{
+      background:var(--card); padding:20px; border-radius:16px; box-shadow:0 6px 15px rgba(0,0,0,0.1); width:100%;
+    }
+    h2{ font-family:'Playfair Display',serif; margin:0 0 10px; color:var(--fg); }
+    p.helper{ color:var(--muted); text-align:center; margin:0 0 10px; }
+
+    form{ display:flex; flex-direction:column; gap:15px; align-items:center; }
+    .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; }
+    @media (max-width:700px){ .row{ grid-template-columns:1fr; } }
+    label{ display:block; margin-bottom:6px; font-weight:500; }
+    select, button{
+      width:100%; padding:12px 14px; border-radius:8px; border:1px solid #d9cbbd; background:#fff; font-size:0.95rem;
+    }
+    button{ background:var(--brand); color:#fffaf0; border:none; cursor:pointer; transition:.3s; }
+    button:hover{ background:#8f674f; }
+
+    .section{ display:flex; flex-direction:column; gap:10px; }
+    .chips{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+    .chip{
+      min-width:92px; padding:10px 12px; border-radius:10px; color:#fff; font-weight:600;
+      display:inline-flex; align-items:center; justify-content:center; box-shadow:0 3px 8px rgba(0,0,0,0.15);
+      text-align:center;
+    }
+    .note{ color:var(--muted); text-align:center; font-size:0.9rem; }
+
+    nav.bottom-nav{
+      background:var(--card); display:flex; justify-content:space-around; padding:10px 0; width:100%;
+      box-shadow:0 -4px 10px rgba(0,0,0,0.1); border-top-left-radius:20px; border-top-right-radius:20px; position:sticky; bottom:0;
+    }
+    nav.bottom-nav a{
+      text-decoration:none; color:var(--fg); font-size:0.9rem; display:flex; flex-direction:column; align-items:center; font-weight:500;
+    }
+    nav.bottom-nav a:hover{ color:#a57c63; }
+    nav.bottom-nav a i{ font-size:1.2rem; margin-bottom:3px; }
+
+    /* flash (optional, if rendered via Flask) */
+    .flash-message { margin-bottom: 12px; padding: 10px 12px; border-radius: 6px; font-size: 0.9rem; }
+    .flash-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .flash-error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .flash-info    { background: #cce7ff; color: #004085; border: 1px solid #b3d7ff; }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+<header>GlamDiva - Colour Analysis</header>
+
+<main>
+  <!-- Optional Flask flash block -->
+  <div role="status" aria-live="polite">
+    {% if get_flashed_messages() %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+    {% endif %}
+  </div>
+
+  <!-- Client-side generator (kept from initial) -->
+  <div class="card">
+    <h2>Find Your Best Colors</h2>
+    <p class="helper">Pick your skin tone, undertone, and eye color to generate tailored suggestions.</p>
+    <form id="colorForm">
+      <div class="row">
+        <div>
+          <label for="skinTone">Skin tone</label>
+          <select id="skinTone" required>
+            <option value="">— Select Skin Tone —</option>
+            <option value="wheatish">Wheatish</option>
+            <option value="fair">Fair</option>
+            <option value="olive">Olive</option>
+            <option value="brown">Brown</option>
+            <option value="espresso">Espresso</option>
+            <option value="medium">Medium</option>
+            <option value="tanned">Tanned</option>
+            <option value="obsidian">Obsidian</option>
+          </select>
+        </div>
+        <div>
+          <label for="undertone">Undertone</label>
+          <select id="undertone" required>
+            <option value="">— Select Undertone —</option>
+            <option value="warm">Warm</option>
+            <option value="cool">Cool</option>
+            <option value="neutral">Neutral</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="eyeColor">Eye color</label>
+          <select id="eyeColor" required>
+            <option value="">— Select Eye Color —</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="brown">Brown</option>
+            <option value="hazel">Hazel</option>
+          </select>
+        </div>
+        <div>
+          <label for="prefAccent">Preferred accent (optional)</label>
+          <select id="prefAccent">
+            <option value="">No preference</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="pink">Pink</option>
+            <option value="purple">Purple</option>
+            <option value="gold">Gold</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit">Generate My Palette</button>
+    </form>
+  </div>
+
+  <div class="card section">
+    <h2>Your Suggestions</h2>
+    <div id="resultsContainer" class="section"></div>
+    <p class="note">Tip: Save undertone and skin tone in Personal Styler to unlock server-driven palettes later.</p>
+  </div>
+
+  <!-- Optional: server-driven season/palette block if provided by Flask route -->
+  {% if season or palette %}
+  <div class="card section">
+    <h2>Your Season</h2>
+    <p class="helper">{% if season %}Detected season: <strong>{{ season }}</strong>{% else %}Set your preferences to detect a season{% endif %}</p>
+
+    <div class="section">
+      <h2>Recommended Neutrals</h2>
+      <div class="chips" id="neutrals-chips">
+        {% if palette and palette.neutrals %}
+          {% for hex in palette.neutrals %}
+            {% set color = (hex or '')|e %}
+            <span class="chip" title="{{ color }}" data-color="{{ color }}">Neut.</span>
+          {% endfor %}
+        {% else %}
+          <p class="note">No data yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Accent Colors</h2>
+      <div class="chips" id="accents-chips">
+        {% if palette and palette.accents %}
+          {% for hex in palette.accents %}
+            {% set color = (hex or '')|e %}
+            <span class="chip" title="{{ color }}" data-color="{{ color }}">Accent</span>
+          {% endfor %}
+        {% else %}
+          <p class="note">No data yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Avoid</h2>
+      <div class="chips" id="avoid-chips">
+        {% if palette and palette.avoid %}
+          {% for hex in palette.avoid %}
+            {% set color = (hex or '')|e %}
+            <span class="chip" title="{{ color }}" data-color="{{ color }}">Avoid</span>
+          {% endfor %}
+        {% else %}
+          <p class="note">No data yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</main>
+
+<nav class="bottom-nav">
+  <a href="/"><i class="fas fa-home"></i>Home</a>
+  <a href="/wardrobe"><i class="fas fa-tshirt"></i>Wardrobe</a>
+  <a href="/colour-analysis"><i class="fas fa-palette"></i>Colors</a>
+  <a href="/profile"><i class="fas fa-user"></i>Profile</a>
+</nav>
+
+<script>
+  // A small map from color names to hex for readable chips
+  const demoHex = {
+    'Coral':'#FF7F50','Peach':'#FFDAB9','Burnt Orange':'#CC5500','Terracotta':'#E2725B','Coral Pink':'#F88379',
+    'Gold':'#D4AF37','Bronze':'#CD7F32','Silver':'#C0C0C0','Mauve':'#E0B0FF','Lavender':'#C8A2C8','Powder Blue':'#B0E0E6',
+    'Soft Pink':'#F4C2C2','Rose':'#FF66CC','Berry':'#8A0253','Nude':'#E3BC9A','Taupe':'#483C32','Champagne':'#F7E7CE',
+    'Teal':'#008080','Sage':'#9CAF88','Emerald':'#008000','Navy':'#000080','Plum':'#673147','Chocolate':'#7B3F00',
+    'Camel':'#C19A6B','Rust':'#B7410E','Mustard':'#FFDB58','Olive':'#808000','Ivory':'#FFFFF0','Beige':'#F5F5DC',
+    'Cream':'#FFFDD0','Khaki':'#C3B091','Caramel':'#AF6F09','Mocha':'#3C2F2F','Brown':'#7A5230','Blue':'#1E90FF',
+    'Green':'#228B22','Pink':'#FF69B4','Purple':'#800080','Copper':'#B87333','Burgundy':'#800020',
+    'Sky Blue':'#87CEEB','Lilac':'#C8A2C8','Soft Brown':'#A97C50','Sand':'#D6C6A9','Apricot':'#FBCEB1',
+    'Warm Pink':'#FF6F91','Brick':'#8B3A3A','Deep Blue':'#002366','Eggplant':'#311432','Turquoise':'#40E0D0'
+  };
+
+  // The original mapping structure (kept)
+  const palettes = {
+    wheatish:{warm:{clothes:['Coral','Peach','Burnt Orange'], lips:['Terracotta','Coral Pink'], eyes:['Gold','Bronze']},
+              cool:{clothes:['Powder Blue','Lavender','Soft Pink'], lips:['Rose','Berry'], eyes:['Silver','Mauve']},
+              neutral:{clothes:['Beige','Cream','Khaki'], lips:['Nude','Peach'], eyes:['Taupe','Champagne']}},
+    fair:{warm:{clothes:['Apricot','Peach','Warm Pink'], lips:['Peach','Coral'], eyes:['Gold','Copper']},
+          cool:{clothes:['Sky Blue','Lilac','Soft Pink'], lips:['Rose','Mauve'], eyes:['Silver','Plum']},
+          neutral:{clothes:['Ivory','Sand','Soft Brown'], lips:['Nude','Peach'], eyes:['Taupe','Champagne']}},
+    olive:{warm:{clothes:['Terracotta','Mustard','Warm Brown'], lips:['Copper','Peach'], eyes:['Bronze','Olive']},
+           cool:{clothes:['Teal','Sage','Soft Blue'], lips:['Rose','Berry'], eyes:['Silver','Mauve']},
+           neutral:{clothes:['Beige','Olive','Taupe'], lips:['Nude','Brown'], eyes:['Taupe','Bronze']}},
+    brown:{warm:{clothes:['Caramel','Rust','Chocolate'], lips:['Terracotta','Brick Red'], eyes:['Gold','Bronze']},
+           cool:{clothes:['Navy','Plum','Teal'], lips:['Berry','Rose'], eyes:['Silver','Plum']},
+           neutral:{clothes:['Taupe','Beige','Mocha'], lips:['Nude','Brown'], eyes:['Taupe','Chocolate']}},
+    espresso:{warm:{clothes:['Copper','Brick','Rust'], lips:['Copper','Burgundy'], eyes:['Bronze','Gold']},
+              cool:{clothes:['Deep Blue','Eggplant','Plum'], lips:['Berry','Wine'], eyes:['Silver','Plum']},
+              neutral:{clothes:['Charcoal','Taupe','Beige'], lips:['Nude','Mauve'], eyes:['Taupe','Chocolate']}},
+    medium:{warm:{clothes:['Peach','Coral','Warm Brown'], lips:['Peach','Terracotta'], eyes:['Gold','Bronze']},
+            cool:{clothes:['Lavender','Powder Blue','Teal'], lips:['Rose','Berry'], eyes:['Silver','Mauve']},
+            neutral:{clothes:['Beige','Taupe','Olive'], lips:['Nude','Peach'], eyes:['Taupe','Champagne']}},
+    tanned:{warm:{clothes:['Orange','Terracotta','Camel'], lips:['Coral','Copper'], eyes:['Bronze','Gold']},
+            cool:{clothes:['Turquoise','Blue','Teal'], lips:['Rose','Berry'], eyes:['Silver','Mauve']},
+            neutral:{clothes:['Beige','Taupe','Olive'], lips:['Nude','Peach'], eyes:['Taupe','Bronze']}},
+    obsidian:{warm:{clothes:['Copper','Gold','Burnt Orange'], lips:['Terracotta','Burgundy'], eyes:['Gold','Bronze']},
+              cool:{clothes:['Navy','Deep Purple','Emerald'], lips:['Berry','Plum'], eyes:['Silver','Plum']},
+              neutral:{clothes:['Charcoal','Taupe','Olive'], lips:['Nude','Brown'], eyes:['Taupe','Chocolate']}}
+  };
+
+  function hexFor(label){
+    if (!label) return '#a57c63';
+    const key = String(label).trim();
+    if (demoHex[key]) return demoHex[key];
+    const found = Object.keys(demoHex).find(k => k.toLowerCase() === key.toLowerCase());
+    return found ? demoHex[found] : '#a57c63';
+  }
+
+  function textColorFor(hex){
+    // Simple luminance check for contrast
+    if(/^#([A-Fa-f0-9]{6})$/.test(hex)){
+      const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+      const luminance = 0.299*r + 0.587*g + 0.114*b;
+      return luminance > 186 ? '#333' : '#fff';
+    }
+    return '#fff';
+  }
+
+  function sectionHTML(title, items){
+    const chips = items.map(it=>{
+      const hex = hexFor(it);
+      const tc = textColorFor(hex);
+      return `<span class="chip" style="background-color:${hex};color:${tc}">${it}</span>`;
+    }).join('');
+    return `
+      <div class="section">
+        <h2>${title}</h2>
+        <div class="chips">${chips}</div>
+      </div>
+    `;
+  }
+
+  document.getElementById('colorForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    const skin = document.getElementById('skinTone').value;
+    const undertone = document.getElementById('undertone').value;
+    const eye = document.getElementById('eyeColor').value;
+    const pref = document.getElementById('prefAccent').value;
+    const container = document.getElementById('resultsContainer');
+    container.innerHTML='';
+
+    if(!(palettes[skin] && palettes[skin][undertone])){
+      container.innerHTML = '<p class="note">Please select a valid skin tone and undertone.</p>';
+      return;
+    }
+    const data = palettes[skin][undertone];
+
+    // Personalize: bring preferred accent to front if present
+    const clothes = [...data.clothes];
+    if (pref){
+      const idx = clothes.findIndex(x => x.toLowerCase().includes(pref.toLowerCase()));
+      if (idx > 0){ const [v] = clothes.splice(idx,1); clothes.unshift(v); }
+    }
+
+    const blocks = [
+      sectionHTML('Clothes', clothes),
+      sectionHTML('Lipstick Shades', data.lips),
+      sectionHTML('Eyeshadow Shades', data.eyes)
+    ];
+    container.innerHTML = blocks.join('');
+  });
+
+  // If server provided season palette chips using data-color, paint them
+  (function(){
+    ['neutrals-chips','accents-chips','avoid-chips'].forEach(id=>{
+      const chips = document.querySelectorAll('#'+id+' .chip');
+      chips.forEach(ch=>{
+        const c = ch.getAttribute('data-color');
+        if (c && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c)) {
+          ch.style.backgroundColor = c;
+          ch.style.color = textColorFor(c);
+        }
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

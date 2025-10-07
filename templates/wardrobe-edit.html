@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GlamDiva - Edit Wardrobe Item</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
+    body { background:#f5f0e1; color:#5a3e36; min-height:100vh; display:flex; flex-direction:column; }
+    header { background:#a57c63; color:#fffaf0; padding:20px 40px; text-align:center; font-family:'Playfair Display', serif; font-size:2rem; border-bottom-left-radius:20px; border-bottom-right-radius:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    main { flex:1; padding:30px 20px; display:flex; justify-content:center; }
+    .form-card { background:#fffaf0; border-radius:16px; box-shadow:0 6px 15px rgba(0,0,0,0.1); width:100%; max-width:640px; padding:22px; }
+    h2 { font-family:'Playfair Display', serif; font-size:1.6rem; margin-bottom:16px; text-align:center; }
+    label { display:block; margin-bottom:6px; color:#5a3e36; font-weight:500; }
+    input, select, textarea { width:100%; padding:12px 14px; margin-bottom:14px; border:1px solid #d9cbbd; border-radius:8px; outline:none; background:#fff; font-size:0.95rem; }
+    input:focus, select:focus, textarea:focus { border-color:#a57c63; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width:680px) { .row { grid-template-columns:1fr; } }
+    .actions { display:flex; gap:12px; margin-top:6px; }
+    .btn { flex:1; padding:12px 16px; background:#a57c63; color:#fffaf0; border:none; border-radius:8px; cursor:pointer; font-size:1rem; text-align:center; text-decoration:none; transition:0.3s; }
+    .btn:hover { background:#8f674f; }
+    .btn-secondary { background:#d9cbbd; color:#5a3e36; }
+    .btn-secondary:hover { background:#cdbfad; }
+    .flash-message { margin-bottom: 12px; padding: 10px 12px; border-radius: 6px; font-size: 0.9rem; }
+    .flash-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    .flash-error   { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+    .flash-info    { background:#cce7ff; color:#004085; border:1px solid #b3d7ff; }
+    nav.bottom-nav { background:#fffaf0; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -4px 10px rgba(0,0,0,0.1); border-top-left-radius:20px; border-top-right-radius:20px; position:sticky; bottom:0; margin-top:20px; }
+    nav.bottom-nav a { text-decoration:none; color:#5a3e36; font-size:0.9rem; display:flex; flex-direction:column; align-items:center; font-weight:500; }
+    nav.bottom-nav a:hover { color:#a57c63; }
+    nav.bottom-nav a i { font-size:1.2rem; margin-bottom:3px; }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+  <header>GlamDiva - Edit Item</header>
+  <main>
+    <div class="form-card">
+      <div role="status" aria-live="polite">
+        {% if get_flashed_messages() %}
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+              <div class="flash-message flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endwith %}
+        {% endif %}
+      </div>
+
+      <h2>Edit Wardrobe Item</h2>
+      <form method="POST" action="/wardrobe/edit/{{ item.id }}" enctype="multipart/form-data">
+        <label for="name">Item Name</label>
+        <input id="name" name="name" type="text" value="{{ item.name }}" required>
+
+        <div class="row">
+          <div>
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+              {% set categories = ['Top','Bottom','Dress','Outerwear','Footwear','Accessory'] %}
+              {% for c in categories %}
+                <option value="{{ c }}" {% if item.category == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="color">Color</label>
+            <input id="color" name="color" type="text" value="{{ item.color or '' }}" placeholder="e.g., Navy Blue">
+          </div>
+        </div>
+
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="Add notes">{{ item.notes or '' }}</textarea>
+
+        <div class="row">
+          <div>
+            <label>Current Image</label>
+            {% if item.image_url %}
+              <img src="{{ item.image_url }}" alt="{{ item.name }}" style="width:120px; height:120px; object-fit:cover; border-radius:8px; display:block; margin-bottom:8px;">
+            {% else %}
+              <p style="color:#7a5a4d;">No image uploaded.</p>
+            {% endif %}
+          </div>
+          <div>
+            <label for="image">Replace Image (optional)</label>
+            <input id="image" name="image" type="file" accept=".png,.jpg,.jpeg,.gif,.webp">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">Save Changes</button>
+          <a href="/wardrobe" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="/"><i class="fas fa-home"></i>Home</a>
+    <a href="/wardrobe"><i class="fas fa-tshirt"></i>Wardrobe</a>
+    <a href="/profile"><i class="fas fa-user"></i>Profile</a>
+  </nav>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GlamDiva - Signup</title>
+
+  <!-- Google Fonts -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #f5f0e1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: #fffaf0;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      display: flex;
+      max-width: 900px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .form-container {
+      padding: 40px 50px;
+      width: 50%;
+      min-width: 320px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #5a3e36;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #7a5a4d;
+      margin-bottom: 30px;
+      font-size: 0.9rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #5a3e36;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border: 1px solid #d9cbbd;
+      border-radius: 6px;
+      outline: none;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+
+    input:focus {
+      border-color: #a57c63;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #a57c63;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #8f674f;
+    }
+
+    .switch {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.85rem;
+      color: #7a5a4d;
+    }
+
+    .switch a {
+      color: #a57c63;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .image-container {
+      background-color: #a57c63;
+      width: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fffaf0;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      text-align: center;
+      padding: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .container { flex-direction: column; }
+      .image-container, .form-container { width: 100%; }
+    }
+
+    /* Optional: simple flash styles (if you render flashes on this page) */
+    .flash-message { 
+      margin-bottom: 12px; 
+      padding: 10px 12px; 
+      border-radius: 6px; 
+      font-size: 0.9rem; 
+    }
+    .flash-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .flash-error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .flash-info    { background: #cce7ff; color: #004085; border: 1px solid #b3d7ff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Form Section -->
+    <div class="form-container">
+      <h1>Glam Diva</h1>
+      <div class="subtitle">Create a new account</div>
+
+      <!-- OPTIONAL: show flash messages here if using them on signup -->
+      {% if get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+      {% endif %}
+
+      <form method="POST" action="/signup"> <!-- keeps /signup POST -->
+        <label for="name-signup">Full Name</label>
+        <input 
+          type="text" 
+          id="name-signup" 
+          name="name" 
+          placeholder="Enter your full name" 
+          required
+        >
+
+        <label for="email-signup">Email Address</label>
+        <input 
+          type="email" 
+          id="email-signup" 
+          name="email" 
+          placeholder="Enter your email" 
+          required
+        >
+
+        <label for="password-signup">Password</label>
+        <input 
+          type="password" 
+          id="password-signup" 
+          name="password" 
+          placeholder="Create a password" 
+          minlength="6" 
+          required
+        >
+
+        <button type="submit">Create Account</button>
+      </form>
+
+      <div class="switch">
+        Already have an account? 
+        <a href="/login">Login</a> <!-- CHANGED: route path instead of login.html -->
+      </div>
+    </div>
+
+    <!-- Image Section -->
+    <div class="image-container">
+      Where Glam Meets You
+    </div>
+  </div>
+</body>
+</html>

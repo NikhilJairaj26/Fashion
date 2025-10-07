@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GlamDiva - Personal Styler</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+      background-color: #f5f0e1;
+      color: #5a3e36;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      background-color: #a57c63;
+      width: 100%;
+      padding: 20px 0;
+      text-align: center;
+      color: #fffaf0;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    main {
+      flex-grow: 1;
+      width: 100%;
+      max-width: 760px;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .description { text-align: center; color: #7a5a4d; }
+
+    .flash-message { margin-bottom: 12px; padding: 10px 12px; border-radius: 6px; font-size: 0.9rem; }
+    .flash-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    .flash-error   { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+    .flash-info    { background:#cce7ff; color:#004085; border:1px solid #b3d7ff; }
+
+    .card { background:#fffaf0; border-radius:16px; box-shadow:0 6px 15px rgba(0,0,0,0.1); padding:18px; }
+
+    form .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    @media (max-width: 700px) { form .row { grid-template-columns: 1fr; } }
+
+    label { display:block; margin-bottom:6px; color:#5a3e36; font-weight:500; }
+    input[type="text"], select {
+      width:100%; padding:12px 14px; margin-bottom:12px;
+      border:1px solid #d9cbbd; border-radius:8px; outline:none; background:#fff; font-size:0.95rem;
+    }
+    input:focus, select:focus { border-color:#a57c63; }
+
+    .btn {
+      padding:12px 16px; background:#a57c63; color:#fffaf0; border:none; border-radius:8px;
+      cursor:pointer; font-size:1rem; transition:.3s; text-decoration:none; display:inline-block;
+    }
+    .btn:hover { background:#8f674f; }
+
+    .suggestions { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; }
+    .suggestion-card {
+      background:#fffaf0; width:220px; border-radius:16px; box-shadow:0 6px 15px rgba(0,0,0,0.1);
+      padding:15px; text-align:center; transition:.3s; cursor:pointer;
+    }
+    .suggestion-card:hover { transform: translateY(-5px); box-shadow:0 10px 20px rgba(0,0,0,0.15); }
+
+    .chips { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+    .chip { width:28px; height:28px; border-radius:50%; border:1px solid #d9cbbd; }
+
+    nav.bottom-nav {
+      background-color:#fffaf0; display:flex; justify-content:space-around; padding:10px 0;
+      box-shadow:0 -4px 10px rgba(0,0,0,0.1); border-top-left-radius:20px; border-top-right-radius:20px;
+      position:sticky; bottom:0; width:100%;
+    }
+    nav.bottom-nav a {
+      text-decoration:none; color:#5a3e36; font-size:0.9rem; display:flex; flex-direction:column; align-items:center; font-weight:500;
+    }
+    nav.bottom-nav a:hover { color:#a57c63; }
+    nav.bottom-nav a i { font-size:1.2rem; margin-bottom:3px; }
+  </style>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+  <header>GlamDiva - Personal Styler</header>
+
+  <main>
+    <div role="status" aria-live="polite">
+      {% if get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+      {% endif %}
+    </div>
+
+    <p class="description">Save preferences and get undertone-based suggestions and picks from the wardrobe.</p>
+
+    <div class="card">
+      <form method="POST" action="/personal-styler">
+        <div class="row">
+          <div>
+            <label for="skin_tone">Skin tone</label>
+            <select id="skin_tone" name="skin_tone">
+              {% set tones = ['very fair','fair','light','light-medium','medium','tan','deep-tan','deep','very deep'] %}
+              {% if not profile.skin_tone %}
+                <option value="" selected>— Select —</option>
+              {% else %}
+                <option value="">— Select —</option>
+              {% endif %}
+              {% for t in tones %}
+                <option value="{{ t }}" {% if profile.skin_tone and profile.skin_tone|lower == t %}selected{% endif %}>{{ t|capitalize }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="undertone">Undertone</label>
+            <select id="undertone" name="undertone">
+              {% if not profile.undertone %}
+                <option value="" selected>— Select —</option>
+              {% else %}
+                <option value="">— Select —</option>
+              {% endif %}
+              {% for opt in ['cool','warm','neutral'] %}
+                <option value="{{ opt }}" {% if profile.undertone==opt %}selected{% endif %}>{{ opt|capitalize }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Occasion -->
+        <div class="row">
+          <div>
+            <label for="occasion">Occasion</label>
+            <select id="occasion" name="occasion">
+              {% set occs = ['work','casual','party','wedding','festive','sports','custom'] %}
+              {% if not profile.occasion %}
+                <option value="" selected>— Select —</option>
+              {% else %}
+                <option value="">— Select —</option>
+              {% endif %}
+              {% for o in occs %}
+                <option value="{{ o }}" {% if profile.occasion == o %}selected{% endif %}>{{ o|capitalize }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="eye_color">Eye color</label>
+            <input id="eye_color" name="eye_color" type="text" value="{{ profile.eye_color or '' }}" placeholder="e.g., brown, green, blue">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="hair_color">Hair color</label>
+            <input id="hair_color" name="hair_color" type="text" value="{{ profile.hair_color or '' }}" placeholder="e.g., black, brown, blonde">
+          </div>
+        </div>
+
+        {% if errors and errors|length %}
+          <ul style="color:#b04a4a; margin-bottom:10px;">
+            {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+
+        <button class="btn" type="submit">Save Preferences</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title" style="margin-bottom:10px;">Suggestions</h2>
+      <p style="color:#7a5a4d; text-align:center;">
+        Occasion: {{ profile.occasion|capitalize if profile.occasion else 'Any' }}
+      </p>
+      {% if undertone_suggestions and undertone_suggestions|length %}
+        <div class="suggestions">
+          {% for s in undertone_suggestions %}
+            <div class="suggestion-card">
+              <h3 style="margin-bottom:6px;">{{ s|capitalize }}</h3>
+              <p style="color:#7a5a4d;">Fits {{ profile.undertone or 'your' }} undertone</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color:#7a5a4d;">Set undertone and occasion to view tailored suggestions.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2 class="section-title" style="margin-bottom:10px;">Palette</h2>
+      {% if palette and palette|length %}
+        <div class="chips" id="palette-chips">
+          {% for hex in palette %}
+            {% set color = (hex or '')|e %}
+            <span class="chip" title="{{ color }}" data-color="{{ color }}"></span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color:#7a5a4d;">No palette yet. Choose an undertone above.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2 class="section-title" style="margin-bottom:10px;">Wardrobe Picks</h2>
+      {% if wardrobe_picks and wardrobe_picks|length %}
+        <div class="suggestions">
+          {% for it in wardrobe_picks %}
+            <div class="suggestion-card">
+              <h3 style="margin-bottom:4px;">{{ it.name }}</h3>
+              <p style="color:#7a5a4d; margin-bottom:6px;">{{ it.category }}{% if it.color %} · {{ it.color }}{% endif %}</p>
+              <a class="btn" href="/wardrobe/edit/{{ it.id }}">Use / Edit</a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color:#7a5a4d;">No items yet. Add some in Wardrobe.</p>
+      {% endif %}
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="/"><i class="fas fa-home"></i>Home</a>
+    <a href="/wardrobe"><i class="fas fa-tshirt"></i>Wardrobe</a>
+    <a href="/colour-analysis"><i class="fas fa-palette"></i>Colors</a>
+    <a href="/profile"><i class="fas fa-user"></i>Profile</a>
+  </nav>
+
+  <script>
+    (function(){
+      var chips = document.querySelectorAll('#palette-chips .chip');
+      chips.forEach(function(chip){
+        var c = chip.getAttribute('data-color');
+        if (c && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c)) {
+          chip.style.backgroundColor = c;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
